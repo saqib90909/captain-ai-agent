@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Captain" />
+  <meta name="theme-color" content="#050B1E" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="img/icon-180.png" />
+  <link rel="icon" href="img/icon-192.png" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; media-src 'self' blob: mediastream: data: https://translate.google.com; connect-src 'self' https://generativelanguage.googleapis.com wss://generativelanguage.googleapis.com https://graph.facebook.com https://graph-video.facebook.com; script-src 'self'" />
+  <title>Captain AI Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+  <!-- top bar -->
+  <header class="top">
+    <img src="img/icon.png" class="logo" alt="" />
+    <div class="brand"><b>Captain</b><span>AI Agent</span></div>
+    <div class="spacer"></div>
+    <div id="liveChip" class="chip off"><i></i><span>Off</span></div>
+  </header>
+
+  <main id="pages">
+    <!-- HOME -->
+    <section class="page active" data-page="home">
+      <div class="hero">
+        <img src="img/captain-hero.png" alt="Captain" class="hero-img" />
+        <div class="hero-fade"></div>
+        <div id="heroBubble" class="bubble-hero">السلام علیکم! میں کیپٹن ہوں۔ بولیں یا لکھیں، کیا کرنا ہے؟</div>
+      </div>
+      <div class="voice-zone">
+        <canvas id="wave"></canvas>
+        <button id="micBtn" class="mic" aria-label="Mic"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></button>
+        <div id="status" class="status"><b id="statusTitle">مائیک دبائیں</b><span id="statusSub">پھر بس بولیں، کیپٹن سنے گا</span></div>
+      </div>
+      <div class="tiles">
+        <button class="tile wa" data-go="whatsapp"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'><path d='M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6c-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.7-.1l.9-1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.1.1.6-.1 1.1z'/></svg>" alt=""/><b>WhatsApp</b><small id="waTileSub">Control &amp; Chat</small></button>
+        <button class="tile fb" data-go="facebook"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'><path d='M14 8V6.5c0-.7.2-1.2 1.3-1.2H17V2.2A22 22 0 0 0 14.6 2C12.2 2 10.6 3.4 10.6 6v2H8v3.4h2.6V22H14V11.4h2.7L17 8h-3z'/></svg>" alt=""/><b>Facebook</b><small>Control &amp; Chat</small></button>
+      </div>
+    </section>
+
+    <!-- CHAT -->
+    <section class="page" data-page="chat">
+      <div class="page-head"><h2>Chat with Captain</h2><button id="newChat" class="btn small ghost">نئی چیٹ</button></div>
+      <div id="chatLog" class="chat-log"></div>
+    </section>
+
+    <!-- WHATSAPP -->
+    <section class="page" data-page="whatsapp">
+      <div class="page-head"><h2>WhatsApp Control</h2></div>
+      <div class="card ios-only">
+        <h3>iPhone پر WhatsApp</h3>
+        <p class="muted">Apple کسی ایپ کو WhatsApp کے میسج پڑھنے یا خود بھیجنے نہیں دیتا۔ iPhone پر کیپٹن <b>نمبر</b> بتانے پر WhatsApp کھول کر میسج تیار کر دیتا ہے، Send آپ دبائیں۔</p>
+        <div class="examples"><span>«03001234567 کو واٹس ایپ پر سلام بھیجو»</span></div>
+      </div>
+      <div class="card android-only">
+        <h3>ایک دفعہ کی تیاری</h3>
+        <p class="muted">یہ اجازتیں دیں تاکہ کیپٹن آپ کا WhatsApp چلا سکے۔</p>
+        <div class="perm" data-perm="notifAccess"><div><b>میسج پڑھنے کی اجازت</b><small>Notification access: نئے میسج پڑھنا، سنانا اور جواب دینا</small></div><button class="btn small">اجازت دیں</button></div>
+        <div class="perm" data-perm="autoSend"><div><b>خود بھیجنا (Auto Send)</b><small>Accessibility: کیپٹن WhatsApp کا Send خود دبائے</small></div><button class="btn small">آن کریں</button></div>
+        <div class="perm" data-perm="contacts"><div><b>Contacts</b><small>نام سے میسج بھیجنے کے لیے</small></div><button class="btn small">اجازت دیں</button></div>
+        <div class="perm" data-perm="notifPerm"><div><b>Notifications</b><small>شیڈول میسج اور اطلاعات</small></div><button class="btn small">اجازت دیں</button></div>
+        <div class="perm" data-perm="allFiles"><div><b>فائلیں (اختیاری)</b><small>WhatsApp کی تصویریں/ویڈیو Download میں محفوظ کرنا</small></div><button class="btn small">اجازت دیں</button></div>
+        <div class="perm" data-perm="exactAlarm"><div><b>ٹھیک وقت پر (اختیاری)</b><small>شیڈول میسج بالکل وقت پر جائے</small></div><button class="btn small">اجازت دیں</button></div>
+        <p class="hint">اگر «Restricted setting» لکھا آئے: فون کی Settings ‹ Apps ‹ Captain AI Agent ‹ اوپر ⋮ ‹ <b>Allow restricted settings</b>، پھر دوبارہ آن کریں۔</p>
+      </div>
+      <div class="card android-only">
+        <h3>خودکار</h3>
+        <label class="switch"><input type="checkbox" id="setReadIncoming" /><span></span><div><b>نئے میسج آواز میں سنائیں</b><small>جب ایپ کھلی ہو</small></div></label>
+        <label class="switch"><input type="checkbox" id="setAutoSend" /><span></span><div><b>میسج خود بھیجیں</b><small>Send کا بٹن کیپٹن دبائے</small></div></label>
+        <label class="switch"><input type="checkbox" id="setAutoReply" /><span></span><div><b>AI خود جواب دے</b><small>صرف ذاتی چیٹس، ایپ بند ہو تب بھی</small></div></label>
+        <textarea id="setAutoReplyPrompt" rows="2" placeholder="جواب کی ہدایت، مثلاً: میں مصروف ہوں، تھوڑی دیر میں بات کرتا ہوں"></textarea>
+      </div>
+      <div class="card android-only">
+        <div class="row"><h3>شیڈول میسج</h3></div>
+        <div id="schedList" class="list"><p class="muted">کوئی نہیں۔ کہیں: «کل صبح 9 بجے علی کو سالگرہ مبارک بھیجنا»</p></div>
+      </div>
+      <div class="card android-only">
+        <div class="row"><h3>نئے میسج</h3><button id="waRefresh" class="btn small ghost">تازہ کریں</button></div>
+        <div id="waList" class="list"></div>
+      </div>
+      <div class="card android-only">
+        <h3>آزمائیں، کہیں:</h3>
+        <div class="examples"><span>«علی کو واٹس ایپ پر سلام بھیجو»</span><span>«میرے نئے میسج پڑھو»</span><span>«امی کو تصویر بھیجو»</span><span>«اسٹیٹس لگاؤ: جمعہ مبارک»</span></div>
+      </div>
+    </section>
+
+    <!-- FACEBOOK -->
+    <section class="page" data-page="facebook">
+      <div class="page-head"><h2>Facebook Control</h2></div>
+      <div class="card">
+        <h3>آپ کا Facebook</h3>
+        <p class="muted android-only">ایک دفعہ کیپٹن کے اندر Facebook میں لاگ ان کریں، پھر کیپٹن خود پوسٹ، لائک، کمنٹ، سرچ اور ویڈیو چلا سکتا ہے۔</p><p class="muted ios-only">iPhone پر کیپٹن Facebook کھول سکتا ہے۔ خودکار پوسٹ/کمنٹ صرف نیچے Facebook Page token سے ہوتے ہیں۔</p>
+        <button id="fbOpen" class="btn wide">Facebook کھولیں / لاگ ان</button>
+        <div class="grid4 android-only">
+          <button class="btn ghost" data-fb="notifications">Notifications</button>
+          <button class="btn ghost" data-fb="messages">Messages</button>
+          <button class="btn ghost" data-fb="watch">Watch</button>
+          <button class="btn ghost" data-fb="profile">Profile</button>
+        </div>
+        <button id="fbLogout" class="btn small ghost android-only">Facebook سے لاگ آؤٹ</button>
+      </div>
+      <div class="card">
+        <h3>Facebook Page (ایڈوانسڈ)</h3>
+        <p class="muted">صرف اگر آپ کے پاس Page Access Token ہو۔</p>
+        <input id="fbPageId" placeholder="Page ID" />
+        <input id="fbToken" placeholder="Page Access Token" type="password" />
+        <div class="row"><button id="fbSave" class="btn small">محفوظ کریں اور جانچیں</button><span id="fbPageStatus" class="muted"></span></div>
+      </div>
+      <div class="card">
+        <h3>آزمائیں، کہیں:</h3>
+        <div class="examples"><span>«فیس بک پر پوسٹ کرو: آج کا دن بہترین ہے»</span><span>«میری نوٹیفکیشن پڑھو»</span><span>«پہلی پوسٹ لائک کرو»</span><span>«کرکٹ کی ویڈیو سرچ کرو»</span></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="page" data-page="settings">
+      <div class="page-head"><h2>Settings</h2></div>
+      <div class="card">
+        <h3>Google AI Key (Gemini)</h3>
+        <p id="keyState" class="muted"></p>
+        <div class="row"><button id="keyBtn" class="btn small">Key لگائیں</button><button id="keyFree" class="btn small ghost">مفت key لیں ↗</button><button id="keyRemove" class="btn small ghost">ہٹائیں</button></div>
+      </div>
+      <div class="card">
+        <h3>آواز</h3>
+        <div class="seg" id="voiceSeg"><button data-v="female">لڑکی</button><button data-v="male">لڑکا</button></div>
+        <label class="switch"><input type="checkbox" id="setLive" /><span></span><div><b>Live موڈ (Jarvis جیسا فوری)</b><small>گوگل سے لگاتار بات چیت، بیچ میں ٹوک سکتے ہیں</small></div></label>
+        <label class="switch"><input type="checkbox" id="setSpeak" /><span></span><div><b>جواب بول کر سنائیں</b><small>لکھے ہوئے سوالوں کے لیے بھی</small></div></label>
+        <div class="slider"><span>رفتار</span><input type="range" id="setRate" min="1" max="1.6" step="0.05" /><b id="rateVal"></b></div>
+        <button id="testVoice" class="btn small ghost">آواز آزمائیں</button>
+      </div>
+      <div class="card">
+        <h3>ایپ</h3>
+        <p class="muted" id="appInfo"></p>
+        <button id="appPerms" class="btn small ghost android-only">ایپ کی اجازتیں (Android Settings)</button>
+      </div>
+      <div class="card about">
+        <img src="img/logo.png" alt="" />
+        <p><b>Captain AI Agent</b> — آپ کا سمارٹ سوشل میڈیا اسسٹنٹ۔<br/>Connect • Chat • Control</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- input bar (home + chat) -->
+  <form id="inputBar" class="input-bar">
+    <input id="msgInput" autocomplete="off" placeholder="کچھ لکھیں… یا مائیک دبائیں" />
+    <button type="submit" class="send" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg></button>
+  </form>
+
+  <!-- bottom navigation -->
+  <nav class="tabs">
+    <button data-go="home" class="active"><svg viewBox="0 0 24 24"><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg><span>Home</span></button>
+    <button data-go="chat"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H7l-3 3z"/></svg><span>Chat</span></button>
+    <button data-go="whatsapp"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg><span>WhatsApp</span><i id="waBadge" class="badge hidden">0</i></button>
+    <button data-go="facebook"><svg viewBox="0 0 24 24"><path d="M14 8V6.5c0-.7.2-1.2 1.3-1.2H17V2.2A22 22 0 0 0 14.6 2C12.2 2 10.6 3.4 10.6 6v2H8v3.4h2.6V22H14V11.4h2.7L17 8h-3z"/></svg><span>Facebook</span></button>
+    <button data-go="settings"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.7-1L15 3h-4l-.4 2.9a7 7 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7 7 0 0 0 1.7 1L11 21h4l.4-2.9a7 7 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z"/></svg><span>Settings</span></button>
+  </nav>
+</div>
+
+<!-- Google key sheet -->
+<div id="keySheet" class="sheet hidden">
+  <div class="sheet-card">
+    <h3>Google AI key لگائیں</h3>
+    <p class="muted">مفت key: <b>aistudio.google.com/apikey</b> کھولیں ‹ «Create API key» ‹ کاپی کریں ‹ یہاں پیسٹ کریں۔</p>
+    <input id="keyInput" placeholder="اپنی key یہاں پیسٹ کریں (AIza… یا AQ.…)" autocomplete="off" spellcheck="false" />
+    <p id="keyMsg" class="muted"></p>
+    <div class="row"><button id="keySave" class="btn">محفوظ کریں</button><button id="keyGet" class="btn ghost">مفت key لیں ↗</button><button id="keyClose" class="btn ghost">بند کریں</button></div>
+  </div>
+</div>
+
+<div id="pickSheet" class="sheet hidden">
+  <div class="sheet-card">
+    <h3>فائل چنیں</h3>
+    <p class="muted">کیپٹن کو فائل چاہیے، نیچے بٹن دبا کر چنیں۔</p>
+    <label class="btn wide pick-label">📎 فائل / تصویر چنیں<input id="pickInput" type="file" hidden /></label>
+    <button id="pickCancel" class="btn ghost">رہنے دیں</button>
+  </div>
+</div>
+
+<div id="installHint" class="sheet hidden">
+  <div class="sheet-card">
+    <h3>iPhone پر انسٹال کریں</h3>
+    <p class="muted">1) نیچے Safari کا <b>Share</b> بٹن (⬆️ والا ڈبہ) دبائیں<br/>2) <b>Add to Home Screen</b> دبائیں<br/>3) اوپر <b>Add</b> دبائیں<br/>پھر ہوم اسکرین پر کیپٹن کا آئیکن کھولیں اور Google key لگائیں۔</p>
+    <button id="installClose" class="btn ghost">ابھی نہیں</button>
+  </div>
+</div>
+
+<div id="toasts" class="toasts"></div>
+
+<script src="voice.js"></script>
+<script src="live.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
