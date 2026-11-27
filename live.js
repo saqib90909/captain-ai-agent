@@ -12,6 +12,7 @@
   let micCtx = null, micStream = null, micSrc = null, micProc = null, noiseFloor = 0.01;
   let playCtx = null, outNode = null, nextTime = 0, sources = [];
   let inText = '', outText = '', turnT0 = 0, firstAudio = false, lastHeardAt = 0, failStreak = 0;
+  let lastFrameAt = 0, watchdog = null;
 
   // ---------------- playback (24 kHz PCM chunks, gap-free) ----------------
   function getPlay() {
@@ -44,7 +45,10 @@
     cb.onSpeakEnd && cb.onSpeakEnd();
   }
   Live.isSpeaking = () => sources.length > 0;
-  Live.unlock = () => { try { getPlay(); } catch (_) {} };
+  Live.unlock = () => {
+    try { getPlay(); } catch (_) {}
+    try { if (!micCtx || micCtx.state === 'closed') micCtx = new (window.AudioContext || window.webkitAudioContext)(); micCtx.resume().catch(() => {}); } catch (_) {}
+  };
   Live.interrupt = stopPlayback;
 
   // ---------------- microphone -> 16 kHz PCM stream ----------------
@@ -56,10 +60,12 @@
   async function openMic() {
     if (micStream) return;
     micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
-    micCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!micCtx || micCtx.state === 'closed') micCtx = new (window.AudioContext || window.webkitAudioContext)();
+    try { await micCtx.resume(); } catch (_) {}
     micSrc = micCtx.createMediaStreamSource(micStream);
     micProc = micCtx.createScriptProcessor(2048, 1, 1);
     micProc.onaudioprocess = e => {
+      lastFrameAt = performance.now();
       if (!ws || ws.readyState !== 1 || !setupDone) return;
       if (cb.canListen && !cb.canListen()) return;
       const d = e.inputBuffer.getChannelData(0);
@@ -207,9 +213,19 @@
     await openMic();
     getPlay();
     connect();
+    clearInterval(watchdog);
+    lastFrameAt = performance.now();
+    watchdog = setInterval(() => {
+      if (!wantOn || !micCtx) return;
+      if (performance.now() - lastFrameAt > 1500) {
+        log('mic paused by the phone, waking it up (' + micCtx.state + ')');
+        micCtx.resume().catch(() => {}); playCtx && playCtx.resume().catch(() => {});
+        if (cb.onMicStuck && performance.now() - lastFrameAt > 4000) cb.onMicStuck();
+      }
+    }, 1000);
   };
   Live.stop = function () {
-    wantOn = false; clearTimeout(reconnectTimer);
+    wantOn = false; clearTimeout(reconnectTimer); clearInterval(watchdog);
     try { ws && ws.close(); } catch (_) {}
     ws = null; Live.connected = false; setupDone = false;
     stopPlayback(); closeMic();

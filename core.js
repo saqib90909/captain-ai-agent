@@ -6,7 +6,7 @@
 
   // ================= settings =================
   const DEFAULTS = {
-    geminiKey: '', geminiModel: 'gemini-flash-lite-latest', noFastModels: [],
+    geminiKey: '', geminiModel: 'gemini-flash-lite-latest', noFastModels: ['gemini-flash-lite-latest'],
     voiceGender: 'female', voiceRate: 1.2, speakReplies: true, liveMode: true, handsFree: false,
     readIncoming: true, autoReply: false, autoReplyPrompt: '', autoSend: true,
     fbPageId: '', fbToken: '', lastSeenWa: 0

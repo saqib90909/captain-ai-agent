@@ -53,7 +53,12 @@
   let noiseFloor = 0.01, speaking = false, speechStart = 0, preRoll = [], peak = 0;
 
   Voice.pulse = () => { speakingBoost = 1; };
-  Voice.unlock = () => { try { getCtx(); const u = new SpeechSynthesisUtterance(''); speechSynthesis.speak(u); } catch (_) {} };
+  // Phones only allow sound/mic engines that are started inside a finger tap: call this first thing in the tap.
+  let preCtx = null;
+  Voice.unlock = () => {
+    try { getCtx(); } catch (_) {}
+    try { if (!ctx && !preCtx) preCtx = new (window.AudioContext || window.webkitAudioContext)(); if (preCtx) preCtx.resume().catch(() => {}); } catch (_) {}
+  };
   Voice.isRecording = () => recording;
   Voice.isListening = () => !!auto;
   Voice.isHearing = () => speaking;
@@ -62,7 +67,9 @@
   async function openMic() {
     if (stream) return;
     stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    ctx = preCtx || new (window.AudioContext || window.webkitAudioContext)();
+    preCtx = null;
+    try { await ctx.resume(); } catch (_) {}
     sampleRate = ctx.sampleRate;
     source = ctx.createMediaStreamSource(stream);
     analyser = ctx.createAnalyser();

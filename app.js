@@ -162,6 +162,7 @@
         },
         onTool: (name, args) => window.captain.live.tool(name, args),
         onReconnecting: () => setStatus('connect'),
+        onMicStuck: () => toast('مائیک سے آواز نہیں آ رہی۔ مائیک کا بٹن ایک بار بند کر کے دوبارہ دبائیں۔', 'err'),
         onFail: reason => {
           liveOn = false; liveFailed = true; try { Live.stop(); } catch (_) {}
           toast('Live موڈ ابھی نہیں چلا، عام طریقہ چل رہا ہے (' + String(reason).slice(0, 70) + ')', 'err');
@@ -254,7 +255,7 @@
     $('#setLive').checked = settings.liveMode !== false;
     $('#setSpeak').checked = settings.speakReplies !== false;
     $('#setRate').value = settings.voiceRate || 1.2; $('#rateVal').textContent = (+settings.voiceRate || 1.2).toFixed(2) + 'x';
-    if (!N) $('#appInfo').textContent = 'Version 1.0.0 • iPhone ویب ایپ';
+    if (!N) $('#appInfo').textContent = 'Version 1.0.1 • iPhone ویب ایپ';
     else try { const i = Core.info(); $('#appInfo').textContent = `Version ${i.version || '1.0.0'} • Android API ${i.sdk || '?'} • WhatsApp: ${i.whatsapp ? 'موجود' : 'نہیں ملا'}`; } catch (_) {}
   }
   $$('#voiceSeg button').forEach(b => b.onclick = () => { save({ voiceGender: b.dataset.v }); renderSettings(); if (liveOn) Live.refresh(); toast(b.dataset.v === 'male' ? 'لڑکے کی آواز' : 'لڑکی کی آواز', 'ok'); });
@@ -352,10 +353,10 @@
   // ---------- lifecycle ----------
   window.onAppResume = () => { if (current === 'whatsapp') renderWhatsApp(); else updateBadge(); };
 
+  document.addEventListener('touchend', () => { try { Voice.unlock(); Live.unlock(); } catch (_) {} }, { passive: true, once: true });
   // iPhone web app
   if (!N) {
     document.body.classList.add('web');
-    document.addEventListener('touchend', function once() { Voice.unlock && Voice.unlock(); Live.unlock && Live.unlock(); document.removeEventListener('touchend', once); }, { passive: true });
     const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
     if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) $('#installHint').classList.remove('hidden');
     $('#installClose').onclick = () => $('#installHint').classList.add('hidden');
@@ -368,9 +369,9 @@
   updateBadge();
   if (!settings.geminiKey) {
     setTimeout(() => { heroSay('خوش آمدید! پہلے اپنی مفت Google key لگائیں، پھر مائیک دبا کر مجھ سے بات کریں۔'); openKey(); }, 600);
-  } else if (settings.handsFree) {
-    setTimeout(() => startHandsFree(true), 800);
   }
+  if (settings.geminiKey) setTimeout(() => Core.call({ contents: [{ role: 'user', parts: [{ text: 'hi' }] }], generationConfig: { maxOutputTokens: 1 } }, { fast: true, timeoutMs: 20000 }).catch(() => {}), 1200);
+  if (settings.handsFree) save({ handsFree: false }); // phones need a tap to start the mic
   save({}); // sync settings to the background services
   addMsg('bot', 'السلام علیکم! میں کیپٹن ہوں۔ کہیں: «علی کو واٹس ایپ پر سلام بھیجو»، «میرے نئے میسج پڑھو»، «فیس بک پر پوسٹ کرو…»');
 })();
